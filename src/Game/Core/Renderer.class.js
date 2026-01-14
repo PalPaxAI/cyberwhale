@@ -33,8 +33,10 @@ export default class Renderer {
     this.rendererInstance = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
+      alpha: false,
     });
 
+    this.rendererInstance.setClearColor(0x010126);
     this.rendererInstance.toneMapping = THREE.NeutralToneMapping;
     this.rendererInstance.toneMappingExposure = 1.75;
     this.rendererInstance.shadowMap.enabled = true;

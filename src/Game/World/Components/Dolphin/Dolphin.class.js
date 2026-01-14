@@ -32,7 +32,7 @@ export default class Dolphin {
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x103156) },
+        uBaseColor: { value: new THREE.Color(0x00a5e8) },
       },
     });
   }
