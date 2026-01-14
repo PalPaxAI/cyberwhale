@@ -21,14 +21,14 @@ export default class Camera {
       near,
       far
     );
-    this.cameraInstance.position.set(3.75, 1.5, 4.0);
+    this.cameraInstance.position.set(4.0, -0.8, 3.4);
     this.scene.add(this.cameraInstance);
   }
 
   setOrbitControls() {
     this.controls = new OrbitControls(this.cameraInstance, this.canvas);
     this.controls.enableDamping = true;
-    // this.controls.maxPolarAngle = Math.PI / 2.3;
+    // this.controls.maxPolarAngle = Math.PI / 2;
   }
 
   resize() {

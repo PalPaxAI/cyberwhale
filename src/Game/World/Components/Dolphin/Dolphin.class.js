@@ -41,7 +41,7 @@ export default class Dolphin {
         child.material = this.material;
       }
     });
-    this.dolphin.position.set(0, 0.5, 0);
+    this.dolphin.position.set(0, 0, 0.75);
 
     this.scene.add(this.dolphin);
   }
