@@ -15,6 +15,7 @@ export default class Dolphin {
     this.setMaterial();
     this.setModelInstance();
     this.setAnimation();
+    this.setDebug();
   }
 
   setMaterial() {
@@ -56,6 +57,94 @@ export default class Dolphin {
     } else {
       console.warn('No animations found in dolphin model');
     }
+  }
+
+  setDebug() {
+    if (!this.game.isDebugEnabled) return;
+
+    const debug = this.game.debug;
+
+    // Material controls
+    const materialSettings = {
+      wireframe: false,
+      visible: true,
+    };
+
+    debug.add(
+      materialSettings,
+      'wireframe',
+      {
+        label: 'Wireframe',
+        onChange: (value) => {
+          this.material.wireframe = value;
+        },
+      },
+      'Dolphin'
+    );
+
+    debug.add(
+      materialSettings,
+      'visible',
+      {
+        label: 'Visible',
+        onChange: (value) => {
+          this.dolphin.visible = value;
+        },
+      },
+      'Dolphin'
+    );
+
+    // Animation controls
+    if (this.animation?.action) {
+      const animSettings = {
+        timeScale: 1,
+        paused: false,
+      };
+
+      debug.add(
+        animSettings,
+        'timeScale',
+        {
+          min: 0,
+          max: 3,
+          step: 0.1,
+          label: 'Anim Speed',
+          onChange: (value) => {
+            this.animation.action.timeScale = value;
+          },
+        },
+        'Dolphin'
+      );
+
+      debug.add(
+        animSettings,
+        'paused',
+        {
+          label: 'Pause Anim',
+          onChange: (value) => {
+            if (value) {
+              this.animation.action.paused = true;
+            } else {
+              this.animation.action.paused = false;
+            }
+          },
+        },
+        'Dolphin'
+      );
+    }
+
+    // Reset button
+    debug.addButton(
+      {
+        label: 'Reset Transform',
+        onClick: () => {
+          this.dolphin.position.set(0, 0.5, 0);
+          this.dolphin.rotation.set(0, 0, 0);
+          this.dolphin.scale.set(1, 1, 1);
+        },
+      },
+      'Dolphin'
+    );
   }
 
   update() {
