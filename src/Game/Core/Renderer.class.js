@@ -32,7 +32,7 @@ export default class Renderer {
 
     this.rendererInstance = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: true,
+      antialias: false,
       alpha: false,
     });
 

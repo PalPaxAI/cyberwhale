@@ -10,7 +10,7 @@ export default class FlowField {
     this.time = this.game.time;
 
     this.config = {
-      particleCount: 3000,
+      particleCount: 1500,
       bounds: {
         x: 80,
         y: 50,

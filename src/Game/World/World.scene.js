@@ -4,6 +4,7 @@ import Lighting from './Components/Lighting/Lighting.class';
 import Dolphin from './Components/Dolphin/Dolphin.class';
 import Wormhole from './Components/Wormhole/Wormhole.class';
 import FlowField from './Components/FlowField/FlowField.class';
+import WakeParticles from './Components/WakeParticles/WakeParticles.class';
 
 export default class World {
   constructor() {
@@ -18,6 +19,7 @@ export default class World {
     this.wormhole = new Wormhole();
     this.flowField = new FlowField();
     this.dolphin = new Dolphin();
+    this.wakeParticles = new WakeParticles(this.dolphin);
   }
 
   update() {
@@ -29,6 +31,9 @@ export default class World {
     }
     if (this.dolphin) {
       this.dolphin.update();
+    }
+    if (this.wakeParticles) {
+      this.wakeParticles.update();
     }
   }
 }

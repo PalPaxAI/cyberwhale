@@ -12,8 +12,8 @@ export default class Wormhole {
     // Config
     this.config = {
       // Speedlines
-      speedLineCount: 400,
-      lineSpeed: 15,
+      speedLineCount: 200,
+      lineSpeed: 12,
       innerRadius: 20,
       outerRadius: 40,
       startZ: 30,
