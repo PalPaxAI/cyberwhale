@@ -3,6 +3,7 @@ import Sizes from './Utils/Sizes.class';
 import Time from './Utils/Time.class';
 import Camera from './Core/Camera.class';
 import Renderer from './Core/Renderer.class';
+import PostProcessing from './Systems/PostProcessing.class';
 import World from './World/World.scene';
 import DebugPane from './Utils/DebugPane.class';
 
@@ -28,6 +29,7 @@ export default class Game {
     this.camera = new Camera();
     this.renderer = new Renderer();
     this.world = new World();
+    this.postProcessing = new PostProcessing();
 
     this.time.on('animate', () => {
       this.update();
@@ -47,11 +49,13 @@ export default class Game {
   resize() {
     this.camera.resize();
     this.renderer.resize();
+    this.postProcessing.resize();
   }
 
   update() {
     this.camera.update();
     this.world.update();
+    this.postProcessing.update(this.time.elapsed);
     this.renderer.update();
   }
 
@@ -89,6 +93,7 @@ export default class Game {
 
     this.camera.controls.dispose();
     this.renderer.rendererInstance.dispose();
+    this.postProcessing.dispose();
     if (this.debug) this.debug.dispose();
 
     // Null references
@@ -96,6 +101,7 @@ export default class Game {
     this.scene = null;
     this.camera = null;
     this.renderer = null;
+    this.postProcessing = null;
     this.world = null;
     this.debug = null;
   }

@@ -34,15 +34,17 @@ export default class Renderer {
       canvas: this.canvas,
       antialias: false,
       alpha: false,
+      powerPreference: 'high-performance',
     });
 
     this.rendererInstance.setClearColor(0x010126);
-    this.rendererInstance.toneMapping = THREE.NeutralToneMapping;
-    this.rendererInstance.toneMappingExposure = 1.75;
+    this.rendererInstance.toneMapping = THREE.NoToneMapping; // Disable - handle in post-processing
+    this.rendererInstance.toneMappingExposure = 1.0;
     this.rendererInstance.shadowMap.enabled = true;
     this.rendererInstance.shadowMap.type = THREE.PCFSoftShadowMap;
     this.rendererInstance.setSize(this.sizes.width, this.sizes.height);
     this.rendererInstance.setPixelRatio(this.sizes.pixelRatio);
+    this.rendererInstance.outputColorSpace = THREE.SRGBColorSpace;
 
     if (this.isDebugEnabled) {
       this.setUpPerformanceMonitor();
@@ -77,7 +79,12 @@ export default class Renderer {
       this.perf.beginFrame();
     }
 
-    this.rendererInstance.render(this.scene, this.camera.cameraInstance);
+    // Use post-processing composer if available, otherwise direct render
+    if (this.game.postProcessing) {
+      this.game.postProcessing.render();
+    } else {
+      this.rendererInstance.render(this.scene, this.camera.cameraInstance);
+    }
 
     if (this.perf) {
       this.perf.endFrame();

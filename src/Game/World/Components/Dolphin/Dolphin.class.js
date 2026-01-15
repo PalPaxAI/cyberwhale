@@ -38,7 +38,7 @@ export default class Dolphin {
       blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x00a5e8) },
+        uBaseColor: { value: new THREE.Color(0x6fd3fb) },
       },
     });
   }
@@ -354,8 +354,8 @@ export default class Dolphin {
       uniforms: {
         uTime: { value: 0 },
         uSize: { value: 50.0 },
-        uColor1: { value: new THREE.Color(0x103b72) },
-        uColor2: { value: new THREE.Color(0x7c61ff) },
+        uColor1: { value: new THREE.Color(0x327fe2) },
+        uColor2: { value: new THREE.Color(0x719bf8) },
         uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
       },
     });
