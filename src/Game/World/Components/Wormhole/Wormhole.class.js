@@ -187,68 +187,85 @@ export default class Wormhole {
       this.config.speedLineColor3,
     ];
 
+    // Reuse geometry and materials for better performance
+    const geometries = new Map();
+    const materials = new Map();
+
     for (let i = 0; i < this.config.speedLineCount; i++) {
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const line = this.createSpeedLine(color);
-      this.speedLines.push(line);
-      this.tunnelGroup.add(line.mesh);
+      const length = 2 + Math.random() * 6;
+      const thickness = 0.05 + Math.random() * 0.1;
+
+      // Create geometry key for reuse
+      const geoKey = `${length.toFixed(2)}_${thickness.toFixed(3)}`;
+      let geometry = geometries.get(geoKey);
+      if (!geometry) {
+        geometry = new THREE.BoxGeometry(thickness, thickness, length);
+        geometries.set(geoKey, geometry);
+      }
+
+      // Create material key for reuse
+      const matKey = color.getHex();
+      let material = materials.get(matKey);
+      if (!material) {
+        material = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.9,
+        });
+        materials.set(matKey, material);
+      }
+
+      const mesh = new THREE.Mesh(geometry, material);
+
+      const angle = Math.random() * Math.PI * 2;
+      const radius =
+        this.config.innerRadius +
+        Math.random() * (this.config.outerRadius - this.config.innerRadius);
+
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+
+      const z =
+        this.config.startZ +
+        Math.random() * (this.config.endZ - this.config.startZ);
+
+      mesh.position.set(x, y, z);
+
+      this.speedLines.push({
+        mesh,
+        angle,
+        radius,
+        speed: this.config.lineSpeed * (0.5 + Math.random() * 0.5),
+        baseOpacity: 0.6 + Math.random() * 0.4,
+      });
+      this.tunnelGroup.add(mesh);
     }
-  }
-
-  createSpeedLine(color) {
-    const length = 2 + Math.random() * 6;
-    const thickness = 0.05 + Math.random() * 0.1;
-
-    const geometry = new THREE.BoxGeometry(thickness, thickness, length);
-    const material = new THREE.MeshBasicMaterial({
-      color: color,
-      transparent: true,
-      opacity: 0.9,
-    });
-
-    const mesh = new THREE.Mesh(geometry, material);
-
-    const angle = Math.random() * Math.PI * 2;
-    const radius =
-      this.config.innerRadius +
-      Math.random() * (this.config.outerRadius - this.config.innerRadius);
-
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-
-    const z =
-      this.config.startZ +
-      Math.random() * (this.config.endZ - this.config.startZ);
-
-    mesh.position.set(x, y, z);
-
-    return {
-      mesh,
-      angle,
-      radius,
-      speed: this.config.lineSpeed * (0.5 + Math.random() * 0.5),
-      baseOpacity: 0.6 + Math.random() * 0.4,
-    };
   }
 
   update() {
     const delta = this.time.delta;
+    const zRange = this.config.startZ - this.config.endZ;
+    const invZRange = 1 / zRange; // Cache division
 
     for (const line of this.speedLines) {
+      // Cache cos/sin for this angle (angles don't change, so compute once per line)
+      const cosA = Math.cos(line.angle);
+      const sinA = Math.sin(line.angle);
+      
       line.mesh.position.z -= line.speed * delta;
 
       if (line.mesh.position.z < this.config.endZ) {
         line.mesh.position.z = this.config.startZ;
       }
 
-      const zRange = this.config.startZ - this.config.endZ;
-      const normalizedZ = (line.mesh.position.z - this.config.endZ) / zRange;
+      const normalizedZ = (line.mesh.position.z - this.config.endZ) * invZRange;
 
       const radiusScale = 0.2 + normalizedZ * 0.8;
       const currentRadius = line.radius * radiusScale;
 
-      line.mesh.position.x = Math.cos(line.angle) * currentRadius;
-      line.mesh.position.y = Math.sin(line.angle) * currentRadius;
+      line.mesh.position.x = cosA * currentRadius;
+      line.mesh.position.y = sinA * currentRadius;
 
       let opacity;
       if (normalizedZ > 0.9) {
@@ -260,8 +277,8 @@ export default class Wormhole {
       }
       line.mesh.material.opacity = opacity * line.baseOpacity;
 
-      const scale = 0.3 + normalizedZ * 0.7;
-      line.mesh.scale.set(scale, scale, 1);
+      const scaleValue = 0.3 + normalizedZ * 0.7;
+      line.mesh.scale.set(scaleValue, scaleValue, 1);
     }
 
     if (this.tubeMaterial && this.tubeMaterial.uniforms) {
@@ -276,10 +293,17 @@ export default class Wormhole {
   }
 
   dispose() {
+    // Dispose geometries and materials (they may be shared)
+    const geometries = new Set();
+    const materials = new Set();
+    
     for (const line of this.speedLines) {
+      geometries.add(line.mesh.geometry);
+      materials.add(line.mesh.material);
       line.mesh.geometry.dispose();
       line.mesh.material.dispose();
     }
+    
     if (this.tubeMesh) {
       this.tubeGeometry.dispose();
       this.tubeMaterial.dispose();

@@ -35,7 +35,13 @@ export default class Renderer {
       antialias: false,
       alpha: false,
       powerPreference: 'high-performance',
+      stencil: false,
+      depth: true,
     });
+    
+    // Optimize renderer settings
+    this.rendererInstance.sortObjects = false; // Disable sorting for better performance
+    this.rendererInstance.shadowMap.autoUpdate = false; // Manual shadow updates if needed
 
     this.rendererInstance.setClearColor(0x010126);
     this.rendererInstance.toneMapping = THREE.NoToneMapping; // Disable - handle in post-processing

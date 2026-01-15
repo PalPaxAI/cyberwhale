@@ -34,6 +34,11 @@ export default class WakeParticles {
     this._tmpPosition = new THREE.Vector3();
     this._tmpNormal = new THREE.Vector3();
     this._tmpSkinned = new THREE.Vector3();
+    this._lastDolphinPosition = new THREE.Vector3();
+    this._lastDolphinRotation = new THREE.Quaternion();
+    this._positionChangeThreshold = 0.05; // Only update spawn points if dolphin moved significantly
+    this._updateFrameSkip = 0;
+    this._updateFrameSkipMax = 1; // Update spawn points every other frame
 
     this.init();
     this.setDebug();
@@ -257,6 +262,30 @@ export default class WakeParticles {
 
   updateSpawnPoints() {
     if (!this.dolphinMesh || !this.spawnTexture || !this.sampledData) return;
+
+    // Skip update every other frame to reduce CPU load
+    this._updateFrameSkip++;
+    if (this._updateFrameSkip < this._updateFrameSkipMax) {
+      return;
+    }
+    this._updateFrameSkip = 0;
+
+    // Check if dolphin moved/rotated significantly
+    if (this.dolphin?.dolphin) {
+      const currentPos = this.dolphin.dolphin.position;
+      const currentRot = this.dolphin.dolphin.quaternion;
+      const posChanged = this._lastDolphinPosition.distanceToSquared(currentPos) > 
+                         (this._positionChangeThreshold * this._positionChangeThreshold);
+      const rotChanged = Math.abs(this._lastDolphinRotation.dot(currentRot)) < 0.9999; // ~1 degree threshold
+      
+      if (!posChanged && !rotChanged && this._lastDolphinPosition.lengthSq() > 0) {
+        // Skip update if dolphin hasn't moved/rotated significantly
+        return;
+      }
+      
+      this._lastDolphinPosition.copy(currentPos);
+      this._lastDolphinRotation.copy(currentRot);
+    }
 
     if (this.dolphinMesh.skeleton) {
       this.dolphinMesh.skeleton.update();

@@ -111,25 +111,24 @@ export default class FlowField {
   getFlowField(x, y, z, time, particle) {
     const scale = this.config.noiseScale;
     const t = time * 0.3;
+    const scale2 = scale * 2;
+    const t15 = t * 1.5;
 
-    const nx1 = this.noise3D(x * scale + t, y * scale, z * scale);
-    const ny1 = this.noise3D(x * scale, y * scale + t, z * scale + 1000);
-    const nz1 = this.noise3D(x * scale, y * scale, z * scale + t + 2000);
+    // Cache scaled coordinates
+    const sx = x * scale;
+    const sy = y * scale;
+    const sz = z * scale;
+    const sx2 = x * scale2;
+    const sy2 = y * scale2;
+    const sz2 = z * scale2;
 
-    const nx2 =
-      this.noise3D(x * scale * 2 + t * 1.5, y * scale * 2, z * scale * 2) * 0.5;
-    const ny2 =
-      this.noise3D(
-        x * scale * 2,
-        y * scale * 2 + t * 1.5,
-        z * scale * 2 + 1000
-      ) * 0.5;
-    const nz2 =
-      this.noise3D(
-        x * scale * 2,
-        y * scale * 2,
-        z * scale * 2 + t * 1.5 + 2000
-      ) * 0.5;
+    const nx1 = this.noise3D(sx + t, sy, sz);
+    const ny1 = this.noise3D(sx, sy + t, sz + 1000);
+    const nz1 = this.noise3D(sx, sy, sz + t + 2000);
+
+    const nx2 = this.noise3D(sx2 + t15, sy2, sz2) * 0.5;
+    const ny2 = this.noise3D(sx2, sy2 + t15, sz2 + 1000) * 0.5;
+    const nz2 = this.noise3D(sx2, sy2, sz2 + t15 + 2000) * 0.5;
 
     const nx = nx1 + nx2;
     const ny = ny1 + ny2;
@@ -137,15 +136,20 @@ export default class FlowField {
 
     const angle1 = nx * Math.PI * 2;
     const angle2 = ny * Math.PI;
+    const cosAngle1 = Math.cos(angle1);
+    const cosAngle2 = Math.cos(angle2);
+    const sinAngle1 = Math.sin(angle1);
+    const sinAngle2 = Math.sin(angle2);
 
     const swirl = particle.swirl + time * 0.5;
-    const swirlX = Math.cos(swirl) * this.config.turbulence;
-    const swirlY = Math.sin(swirl) * this.config.turbulence;
+    const turbulence = this.config.turbulence;
+    const swirlX = Math.cos(swirl) * turbulence;
+    const swirlY = Math.sin(swirl) * turbulence;
 
     return new THREE.Vector3(
-      Math.cos(angle1) * Math.cos(angle2) + swirlX,
-      Math.sin(angle2) + swirlY,
-      Math.sin(angle1) * Math.cos(angle2) + nz * 0.3
+      cosAngle1 * cosAngle2 + swirlX,
+      sinAngle2 + swirlY,
+      sinAngle1 * cosAngle2 + nz * 0.3
     );
   }
 
@@ -156,10 +160,26 @@ export default class FlowField {
     const velocities = this.geometry.attributes.velocity.array;
     const particleTypes = this.geometry.attributes.particleType.array;
 
+    // Cache bounds calculations
+    const halfX = this.config.bounds.x / 2;
+    const halfY = this.config.bounds.y / 2;
+    const halfZ = this.config.bounds.z / 2;
+    const margin = 5;
+    const minX = -halfX - margin;
+    const maxX = halfX + margin;
+    const minY = -halfY - margin;
+    const maxY = halfY + margin;
+    const minZ = -halfZ - margin;
+    const maxZ = halfZ + margin;
+
+    // Cache velocity damping factors
+    const velDamp = 0.95;
+    const velBlend = 0.05;
+    const flowSpeed = this.config.flowSpeed;
+
     for (let i = 0; i < this.config.particleCount; i++) {
       const i3 = i * 3;
       const particle = this.particles[i];
-      const type = particleTypes[i];
 
       const x = positions[i3];
       const y = positions[i3 + 1];
@@ -176,34 +196,33 @@ export default class FlowField {
       flow.y += 0.3;
       flow.z += 0.2;
 
-      velocities[i3] = velocities[i3] * 0.95 + flow.x * 0.05;
-      velocities[i3 + 1] = velocities[i3 + 1] * 0.95 + flow.y * 0.05;
-      velocities[i3 + 2] = velocities[i3 + 2] * 0.95 + flow.z * 0.05;
+      // Optimize velocity updates
+      const speedDelta = flowSpeed * particle.speed * delta;
+      velocities[i3] = velocities[i3] * velDamp + flow.x * velBlend;
+      velocities[i3 + 1] = velocities[i3 + 1] * velDamp + flow.y * velBlend;
+      velocities[i3 + 2] = velocities[i3 + 2] * velDamp + flow.z * velBlend;
 
-      positions[i3] +=
-        velocities[i3] * this.config.flowSpeed * particle.speed * delta;
-      positions[i3 + 1] +=
-        velocities[i3 + 1] * this.config.flowSpeed * particle.speed * delta;
-      positions[i3 + 2] +=
-        velocities[i3 + 2] * this.config.flowSpeed * particle.speed * delta;
+      positions[i3] += velocities[i3] * speedDelta;
+      positions[i3 + 1] += velocities[i3 + 1] * speedDelta;
+      positions[i3 + 2] += velocities[i3 + 2] * speedDelta;
 
-      const margin = 5;
-      if (positions[i3] > this.config.bounds.x / 2 + margin) {
-        positions[i3] = -this.config.bounds.x / 2 - margin;
-      } else if (positions[i3] < -this.config.bounds.x / 2 - margin) {
-        positions[i3] = this.config.bounds.x / 2 + margin;
+      // Optimize boundary checks with early exits
+      if (positions[i3] > maxX) {
+        positions[i3] = minX;
+      } else if (positions[i3] < minX) {
+        positions[i3] = maxX;
       }
 
-      if (positions[i3 + 1] > this.config.bounds.y / 2 + margin) {
-        positions[i3 + 1] = -this.config.bounds.y / 2 - margin;
-      } else if (positions[i3 + 1] < -this.config.bounds.y / 2 - margin) {
-        positions[i3 + 1] = this.config.bounds.y / 2 + margin;
+      if (positions[i3 + 1] > maxY) {
+        positions[i3 + 1] = minY;
+      } else if (positions[i3 + 1] < minY) {
+        positions[i3 + 1] = maxY;
       }
 
-      if (positions[i3 + 2] > this.config.bounds.z / 2 + margin) {
-        positions[i3 + 2] = -this.config.bounds.z / 2 - margin;
-      } else if (positions[i3 + 2] < -this.config.bounds.z / 2 - margin) {
-        positions[i3 + 2] = this.config.bounds.z / 2 + margin;
+      if (positions[i3 + 2] > maxZ) {
+        positions[i3 + 2] = minZ;
+      } else if (positions[i3 + 2] < minZ) {
+        positions[i3 + 2] = maxZ;
       }
     }
 

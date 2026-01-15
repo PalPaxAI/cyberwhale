@@ -150,7 +150,17 @@ function updateLoop(timestamp) {
   requestAnimationFrame(updateLoop);
 }
 
+// Cache DOM references and calculations
+let _lastHUDUpdate = 0;
+const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms instead of every frame
+
 function updateHUD() {
+  const now = Date.now();
+  if (now - _lastHUDUpdate < HUD_UPDATE_INTERVAL) {
+    return; // Skip HUD updates too frequently
+  }
+  _lastHUDUpdate = now;
+
   if (gameStartTime && statTime) {
     const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
     const mins = Math.floor(elapsed / 60)

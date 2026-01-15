@@ -264,7 +264,7 @@ export default class Dolphin {
       return;
     }
 
-    this.sparkleCount = 1200;
+    this.sparkleCount = 1500;
     this.connectionDistance = 0.15;
 
     this.sampler = new MeshSurfaceSampler(this.dolphinMesh)

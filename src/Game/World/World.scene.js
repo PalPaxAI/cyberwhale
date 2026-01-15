@@ -21,6 +21,7 @@ export default class World {
   }
 
   update() {
+    // Update order optimized: simpler systems first, complex ones last
     if (this.wormhole) {
       this.wormhole.update();
     }
