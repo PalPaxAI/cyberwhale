@@ -1,6 +1,8 @@
 # Cyber Ocean
 
-A shader project using Domain-Warped Voronoi and Fresnel transparency to create an organic, neural-network effect on a 3D dolphin mesh.
+An interactive WebGL experience featuring an animated dolphin swimming through a cyberpunk wormhole tunnel. Built with Three.js and custom shaders.
+
+<img src="./PREVIEW.png" width="100%" />
 
 ### Prerequisites
 
