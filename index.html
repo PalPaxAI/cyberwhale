@@ -1052,11 +1052,23 @@
 
         function glitchOnce(el) {
           if (!el) return;
-          const original = el.textContent;
+          
+          // Store original text on first call for this element
+          if (!el.dataset.originalText) {
+            el.dataset.originalText = el.textContent;
+          }
+          
+          // Clear any existing interval for this element
+          if (el.glitchInterval) {
+            clearInterval(el.glitchInterval);
+            el.textContent = el.dataset.originalText;
+          }
+          
+          const original = el.dataset.originalText;
           let iterations = 0;
           const maxIterations = 10;
 
-          const interval = setInterval(() => {
+          el.glitchInterval = setInterval(() => {
             el.textContent = original
               .split('')
               .map((char, i) => {
@@ -1072,7 +1084,8 @@
 
             iterations++;
             if (iterations >= maxIterations) {
-              clearInterval(interval);
+              clearInterval(el.glitchInterval);
+              el.glitchInterval = null;
               el.textContent = original;
             }
           }, 30);
