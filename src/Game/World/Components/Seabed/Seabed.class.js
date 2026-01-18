@@ -13,17 +13,19 @@ export default class Seabed {
       particleCount: 2 * 1000 * 1000,
       gridSize: 300,
       gridDepth: 300,
-      depth: -20,
+      depth: -12,
       centerZ: 0,
-      noiseScale: 0.08,
-      noiseHeight: 8.0,
+      noiseScale: 0.065,
+      noiseHeight: 6.0,
       particleSize: 300.5,
       color1: new THREE.Color(0x0a4d6e),
       color2: new THREE.Color(0x1a7fa8),
       color3: new THREE.Color(0x2eb8e6),
-      glowIntensity: 0.6,
-      waveSpeed: 0.15,
-      waveAmplitude: 1.8,
+      sandColor: new THREE.Color(0x246f66),
+      rockColor: new THREE.Color(0x53a2d8),
+      glowIntensity: 0.4,
+      waveSpeed: 0.1,
+      waveAmplitude: 1.2,
       scrollSpeed: 3.5,
     };
 
@@ -89,6 +91,8 @@ export default class Seabed {
         uColor1: { value: this.config.color1 },
         uColor2: { value: this.config.color2 },
         uColor3: { value: this.config.color3 },
+        uSandColor: { value: this.config.sandColor },
+        uRockColor: { value: this.config.rockColor },
         uGlowIntensity: { value: this.config.glowIntensity },
         uWaveSpeed: { value: this.config.waveSpeed },
         uWaveAmplitude: { value: this.config.waveAmplitude },
@@ -252,6 +256,20 @@ export default class Seabed {
       this.material.uniforms.uColor3,
       'value',
       { label: 'Color Peak' },
+      'Seabed',
+    );
+
+    debug.add(
+      this.material.uniforms.uSandColor,
+      'value',
+      { label: 'Sand Color' },
+      'Seabed',
+    );
+
+    debug.add(
+      this.material.uniforms.uRockColor,
+      'value',
+      { label: 'Rock Color' },
       'Seabed',
     );
   }
