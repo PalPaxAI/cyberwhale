@@ -10,7 +10,7 @@ export default class Seabed {
     this.time = this.game.time;
 
     this.config = {
-      particleCount: 1.5 * 1000 * 1000,
+      particleCount: 2 * 1000 * 1000,
       gridSize: 300,
       gridDepth: 300,
       depth: -20,
