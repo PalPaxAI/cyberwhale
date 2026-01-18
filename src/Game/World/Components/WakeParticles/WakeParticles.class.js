@@ -129,7 +129,7 @@ export default class WakeParticles {
     this.gpuCompute = new GPUComputationRenderer(
       this.WIDTH,
       this.WIDTH,
-      this.renderer
+      this.renderer,
     );
 
     const dtPosition = this.gpuCompute.createTexture();
@@ -140,7 +140,7 @@ export default class WakeParticles {
     this.positionVariable = this.gpuCompute.addVariable(
       'uParticles',
       simulationShader,
-      dtPosition
+      dtPosition,
     );
 
     this.gpuCompute.setVariableDependencies(this.positionVariable, [
@@ -218,7 +218,7 @@ export default class WakeParticles {
 
     this.geometry.setAttribute(
       'position',
-      new THREE.BufferAttribute(positions, 3)
+      new THREE.BufferAttribute(positions, 3),
     );
     this.geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
   }
@@ -250,20 +250,7 @@ export default class WakeParticles {
 
     // Optimize dolphin position updates - only update if dolphin moved significantly
     if (this.dolphin?.dolphin) {
-      const currentPos = this.dolphin.dolphin.position;
-      
-      // Initialize tracking if needed
-      if (!this._lastUniformDolphinPosition) {
-        this._lastUniformDolphinPosition = currentPos.clone();
-        uniforms.uDolphinPosition.value.copy(currentPos);
-      } else {
-        // Only update if dolphin moved more than 0.05 units
-        const distanceMoved = this._lastUniformDolphinPosition.distanceToSquared(currentPos);
-        if (distanceMoved > 0.0025) { // 0.05 * 0.05
-          uniforms.uDolphinPosition.value.copy(currentPos);
-          this._lastUniformDolphinPosition.copy(currentPos);
-        }
-      }
+      uniforms.uDolphinPosition.value.copy(this.dolphin.dolphin.position);
     }
 
     this.updateSpawnPoints();
@@ -280,7 +267,7 @@ export default class WakeParticles {
 
     // Skip update every 4 frames instead of 2 to reduce CPU load further
     this._updateFrameSkip++;
-    if (this._updateFrameSkip < 4) {
+    if (this._updateFrameSkip < this._updateFrameSkipMax) {
       return;
     }
     this._updateFrameSkip = 0;
@@ -289,21 +276,22 @@ export default class WakeParticles {
     if (this.dolphin?.dolphin) {
       const currentPos = this.dolphin.dolphin.position;
       const currentRot = this.dolphin.dolphin.quaternion;
-      
-      // Initialize tracking variables if needed
-      if (!this._lastDolphinPosition) {
-        this._lastDolphinPosition = currentPos.clone();
-        this._lastDolphinRotation = currentRot.clone();
-      }
-      
-      const posChanged = this._lastDolphinPosition.distanceToSquared(currentPos) > 0.01; // 0.1 unit threshold
-      const rotChanged = Math.abs(this._lastDolphinRotation.dot(currentRot)) < 0.999; // ~2.5 degree threshold
-      
-      // Only update if significant change occurred
-      if (!posChanged && !rotChanged) {
+
+      const posChanged =
+        this._lastDolphinPosition.distanceToSquared(currentPos) >
+        this._positionChangeThreshold * this._positionChangeThreshold;
+      const rotChanged =
+        Math.abs(this._lastDolphinRotation.dot(currentRot)) < 0.9999; // ~1 degree threshold
+
+      if (
+        !posChanged &&
+        !rotChanged &&
+        this._lastDolphinPosition.lengthSq() > 0
+      ) {
+        // Skip update if dolphin hasn't moved/rotated significantly
         return;
       }
-      
+
       // Update tracking variables
       this._lastDolphinPosition.copy(currentPos);
       this._lastDolphinRotation.copy(currentRot);
@@ -330,7 +318,7 @@ export default class WakeParticles {
         this._tmpSkinned.copy(this._tmpPosition);
         this.dolphinMesh.applyBoneTransform(
           sample.vertexIndex,
-          this._tmpSkinned
+          this._tmpSkinned,
         );
         this._tmpSkinned.applyMatrix4(this.dolphinMesh.matrixWorld);
       } else if (this.dolphinMesh.boneTransform) {
@@ -363,77 +351,77 @@ export default class WakeParticles {
       uniforms.uBackwardSpeed,
       'value',
       { min: 0.5, max: 8, step: 0.1, label: 'Backward Speed' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uTurbulence,
       'value',
       { min: 0, max: 2, step: 0.05, label: 'Turbulence' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uSpread,
       'value',
       { min: 0, max: 1, step: 0.05, label: 'Spread' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uCurlStrength,
       'value',
       { min: 0, max: 2, step: 0.05, label: 'Curl Strength' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uSpiralIntensity,
       'value',
       { min: 0, max: 1, step: 0.05, label: 'Spiral' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uBuoyancy,
       'value',
       { min: 0, max: 0.5, step: 0.01, label: 'Buoyancy' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       uniforms.uDrag,
       'value',
       { min: 0.9, max: 1.0, step: 0.005, label: 'Drag' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       this.material.uniforms.uSize,
       'value',
       { min: 1, max: 30, step: 1, label: 'Particle Size' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       this.material.uniforms.uColor1,
       'value',
       { label: 'Color Fresh' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       this.material.uniforms.uColor2,
       'value',
       { label: 'Color Mid' },
-      'Wake Particles'
+      'Wake Particles',
     );
 
     debug.add(
       this.material.uniforms.uColor3,
       'value',
       { label: 'Color Old' },
-      'Wake Particles'
+      'Wake Particles',
     );
   }
 
