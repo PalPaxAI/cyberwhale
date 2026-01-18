@@ -5,6 +5,7 @@ uniform float uNoiseScale;
 uniform float uNoiseHeight;
 uniform float uWaveSpeed;
 uniform float uWaveAmplitude;
+uniform float uScrollSpeed;
 
 attribute float aRandom;
 attribute vec2 aGridCoord;
@@ -122,30 +123,29 @@ float fbm(vec3 p) {
 void main() {
   vec3 pos = position;
   
-  // Create animated terrain with Perlin noise
+  // Scroll the terrain pattern backward by offsetting Z with time
+  // This makes the terrain itself move from +Z to -Z
+  float scrollOffset = uTime * 5.0;
+  
   vec3 noiseCoord = vec3(
-    aGridCoord.x * uNoiseScale,
-    uTime * uWaveSpeed,
-    aGridCoord.y * uNoiseScale
+    pos.x * uNoiseScale,
+    0.0,
+    (pos.z + scrollOffset) * uNoiseScale  // Add time offset to scroll terrain
   );
   
   // Multi-octave noise for terrain detail
   float noise = fbm(noiseCoord);
   
-  // Add secondary wave motion
-  float wave = sin(aGridCoord.x * 0.3 + uTime * 0.5) * 
-               cos(aGridCoord.y * 0.3 + uTime * 0.3) * 
+  // Scrolling wave pattern
+  float wave = sin(pos.x * 0.3) * 
+               cos((pos.z + scrollOffset) * 0.3) * 
                uWaveAmplitude;
   
-  // Combine noise and waves
+  // Combine noise and waves for height
   float height = noise * uNoiseHeight + wave;
-  
+
   // Apply height displacement
   pos.y += height;
-  
-  // Add subtle particle drift
-  pos.x += sin(uTime * 0.2 + aRandom * 6.28) * 0.3;
-  pos.z += cos(uTime * 0.15 + aRandom * 6.28) * 0.3;
   
   vHeight = height;
   vRandom = aRandom;

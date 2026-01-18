@@ -10,7 +10,7 @@ export default class Seabed {
     this.time = this.game.time;
 
     this.config = {
-      particleCount: 2 * 1000 * 1000,
+      particleCount: 1.5 * 1000 * 1000,
       gridSize: 300,
       gridDepth: 300,
       depth: -20,
@@ -24,6 +24,7 @@ export default class Seabed {
       glowIntensity: 0.6,
       waveSpeed: 0.15,
       waveAmplitude: 0.8,
+      scrollSpeed: 2.0, // Speed of backward scrolling
     };
 
     this.init();
@@ -91,11 +92,14 @@ export default class Seabed {
         uGlowIntensity: { value: this.config.glowIntensity },
         uWaveSpeed: { value: this.config.waveSpeed },
         uWaveAmplitude: { value: this.config.waveAmplitude },
-        uFogColor: { 
-          value: this.scene.fog ? this.scene.fog.color : new THREE.Color(0x121316) 
+        uFogColor: {
+          value: this.scene.fog
+            ? this.scene.fog.color
+            : new THREE.Color(0x121316),
         },
         uFogNear: { value: this.scene.fog ? this.scene.fog.near : 40 },
         uFogFar: { value: this.scene.fog ? this.scene.fog.far : 300 },
+        uScrollSpeed: { value: this.config.scrollSpeed },
       },
       transparent: true,
       blending: THREE.AdditiveBlending,
@@ -105,7 +109,7 @@ export default class Seabed {
 
   update() {
     this.material.uniforms.uTime.value = this.time.elapsedTime;
-    
+
     // Update fog uniforms if fog exists
     if (this.scene.fog) {
       this.material.uniforms.uFogColor.value.copy(this.scene.fog.color);
@@ -122,14 +126,26 @@ export default class Seabed {
     debug.add(
       this.config,
       'depth',
-      { min: -100, max: 0, step: 1, label: 'Depth (Y)', onChange: () => this.updateDepth() },
+      {
+        min: -100,
+        max: 0,
+        step: 1,
+        label: 'Depth (Y)',
+        onChange: () => this.updateDepth(),
+      },
       'Seabed'
     );
 
     debug.add(
       this.config,
       'centerZ',
-      { min: -100, max: 100, step: 5, label: 'Center Z', onChange: () => this.updateDepth() },
+      {
+        min: -100,
+        max: 100,
+        step: 5,
+        label: 'Center Z',
+        onChange: () => this.updateDepth(),
+      },
       'Seabed'
     );
 
@@ -158,6 +174,13 @@ export default class Seabed {
       this.material.uniforms.uWaveSpeed,
       'value',
       { min: 0, max: 1, step: 0.05, label: 'Wave Speed' },
+      'Seabed'
+    );
+
+    debug.add(
+      this.config,
+      'scrollSpeed',
+      { min: 0, max: 10, step: 0.5, label: 'Scroll Speed' },
       'Seabed'
     );
 
