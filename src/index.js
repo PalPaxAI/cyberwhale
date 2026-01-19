@@ -20,6 +20,13 @@ const depthBar = document.getElementById('depth-bar');
 const speedBar = document.getElementById('speed-bar');
 const coordDisplay = document.getElementById('coord-display');
 const fpsDisplay = document.getElementById('fps-display');
+const tokenPriceEl = document.getElementById('token-price');
+const tokenMcapEl = document.getElementById('token-mcap');
+const tokenVolEl = document.getElementById('token-vol');
+const tokenHoldersEl = document.getElementById('token-holders');
+const btnBuy = document.getElementById('btn-buy');
+const btnChart = document.getElementById('btn-chart');
+const quickX = document.getElementById('quick-x');
 
 const audioToggle = document.getElementById('audio-toggle');
 const audioBtn = document.getElementById('audio-btn');
@@ -154,6 +161,7 @@ function updateLoop(timestamp) {
 let _lastHUDUpdate = 0;
 const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms instead of every frame
 
+
 function updateHUD() {
   const now = Date.now();
   if (now - _lastHUDUpdate < HUD_UPDATE_INTERVAL) {
@@ -191,4 +199,20 @@ function updateHUD() {
       0
     )} Z:${pos.z.toFixed(0)}`;
   }
+
+  updateTokenHUD(t);
 }
+
+function updateTokenHUD(timeMs) {
+  // Placeholder zero values until token goes live.
+  // Replace this logic with real on-chain / DEX data later.
+  if (tokenPriceEl) tokenPriceEl.textContent = '$0.000000';
+  if (tokenMcapEl) tokenMcapEl.textContent = '$0';
+  if (tokenVolEl) tokenVolEl.textContent = '$0';
+  if (tokenHoldersEl) tokenHoldersEl.textContent = '0';
+}
+
+// Placeholder links; plug real URLs
+if (btnBuy) btnBuy.href = '#';
+if (btnChart) btnChart.href = '#';
+if (quickX) quickX.href = 'https://x.com/cyberwhalesol';

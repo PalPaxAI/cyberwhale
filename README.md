@@ -1,4 +1,4 @@
-# Cyber Ocean
+# CyberWhale
 
 An interactive WebGL experience featuring an animated dolphin swimming through a cyberpunk wormhole tunnel. Built with Three.js and custom shaders.
 

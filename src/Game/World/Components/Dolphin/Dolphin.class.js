@@ -13,6 +13,12 @@ export default class Dolphin {
     this.resources = this.game.resources;
     this.time = this.game.time;
 
+    // Allow quick retargeting to other models (e.g., whale) without breaking layout
+    // Tune these if the replacement model is too large/small
+    this.initialScale = 0.14;
+    this.initialPosition = new THREE.Vector3(0, 0.45, 0);
+    this.initialRotation = new THREE.Euler(0, Math.PI, 0);
+
     this.modelResource = this.resources.items.dolphinAnimatedModel;
 
     this.outset = 0.017;
@@ -52,6 +58,17 @@ export default class Dolphin {
         child.material = this.material;
       }
     });
+
+    // Normalize transform so larger replacement models (e.g., whale) stay in frame
+    this.dolphin.scale.copy(
+      new THREE.Vector3(
+        this.initialScale,
+        this.initialScale,
+        this.initialScale
+      )
+    );
+    this.dolphin.position.copy(this.initialPosition);
+    this.dolphin.rotation.copy(this.initialRotation);
 
     this.scene.add(this.dolphin);
   }
@@ -240,6 +257,18 @@ export default class Dolphin {
   update() {
     if (this.animation?.mixer) {
       this.animation.mixer.update(this.time.delta);
+    } else if (this.dolphin) {
+      // Fallback swim cycle when the GLB has no animation clips
+      const t = this.time.elapsedTime;
+      const bob = Math.sin(t * 1.2) * 0.12;
+      const sway = Math.sin(t * 0.9) * 0.18;
+      const yaw = Math.sin(t * 0.65) * 0.2;
+      const driftSpeed = 0.25; // meters per second
+
+      this.dolphin.position.y = this.initialPosition.y + bob;
+      this.dolphin.rotation.z = sway;
+      this.dolphin.rotation.y = this.initialRotation.y + yaw;
+      this.dolphin.position.z -= driftSpeed * this.time.delta;
     }
 
     if (this.material.uniforms.uTime) {

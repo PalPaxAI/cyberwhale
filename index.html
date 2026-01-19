@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon/20099.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cyber Ocean</title>
+    <title>CyberWhale</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap"
       rel="stylesheet"
@@ -18,6 +18,8 @@
         --dark-bg: #05050f;
         --panel-bg: rgba(5, 5, 15, 0.7);
         --grid-color: rgba(0, 212, 255, 0.03);
+        --card-bg: rgba(6, 9, 20, 0.9);
+        --card-stroke: rgba(0, 255, 255, 0.25);
       }
 
       * {
@@ -677,6 +679,179 @@
         color: var(--neon-blue);
       }
 
+      /* Meme Token Panel */
+      .meme-panel {
+        position: fixed;
+        top: 90px;
+        right: 24px;
+        width: min(420px, 38vw);
+        background: var(--card-bg);
+        border: 1px solid var(--card-stroke);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35), 0 0 18px rgba(0, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        padding: 1.1rem 1.25rem;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        z-index: 5;
+      }
+
+      .meme-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
+        color: var(--neon-cyan);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .meme-title .pill {
+        padding: 0.15rem 0.55rem;
+        border: 1px solid var(--neon-cyan);
+        border-radius: 999px;
+        font-size: 0.55rem;
+        color: #fff;
+      }
+
+      .token-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.65rem;
+      }
+
+      .token-card {
+        padding: 0.65rem 0.75rem;
+        border: 1px solid var(--card-stroke);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .token-label {
+        font-size: 0.55rem;
+        opacity: 0.6;
+        margin-bottom: 0.2rem;
+      }
+
+      .token-value {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #e5f8ff;
+      }
+
+      .cta-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.5rem;
+      }
+
+      .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid var(--neon-cyan);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        background: linear-gradient(90deg, rgba(0, 255, 255, 0.18), rgba(0, 120, 255, 0.18));
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.12);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 255, 255, 0.22);
+      }
+
+      .cta-btn.secondary {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .live-badge {
+        font-size: 0.55rem;
+        color: #8de6ff;
+      }
+
+      /* Top quick links bar */
+      .quick-links {
+        position: fixed;
+        top: 25px;
+        left: 32px;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        z-index: 6;
+        pointer-events: auto;
+      }
+
+      .quick-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 92px;
+        padding: 0.55rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        background: var(--panel-bg);
+        color: #fff;
+        text-decoration: none;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        text-shadow: 0 0 16px rgba(0, 212, 255, 0.55);
+        box-shadow: 0 0 16px rgba(0, 212, 255, 0.12);
+        transition: transform 0.15s ease, background 0.15s ease,
+          box-shadow 0.15s ease, border-color 0.15s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .quick-link::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 212, 255, 0.12),
+          transparent
+        );
+        transform: translateX(-120%);
+        animation: quickShimmer 3.2s infinite;
+      }
+
+      .quick-link::after {
+        content: '';
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        top: 0;
+        height: 1px;
+        background: rgba(0, 212, 255, 0.25);
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.25);
+        animation: quickScan 2.8s infinite;
+        opacity: 0.8;
+      }
+
+      .quick-link:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 212, 255, 0.6);
+        box-shadow: 0 0 22px rgba(0, 212, 255, 0.22);
+      }
+
+      .quick-link.secondary {
+        border-color: rgba(0, 212, 255, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+      }
+
       /* Animations */
       @keyframes spin {
         to {
@@ -698,6 +873,20 @@
         50% {
           opacity: 1;
         }
+      }
+
+      @keyframes quickShimmer {
+        0% { transform: translateX(-120%); }
+        35% { transform: translateX(120%); }
+        100% { transform: translateX(120%); }
+      }
+
+      @keyframes quickScan {
+        0% { transform: translateY(-2px); opacity: 0; }
+        15% { opacity: 0.8; }
+        50% { transform: translateY(42px); opacity: 0.9; }
+        85% { opacity: 0.5; }
+        100% { transform: translateY(50px); opacity: 0; }
       }
 
       @keyframes pulse-dot {
@@ -760,6 +949,10 @@
         .corner.tr, .corner.br { right: 10px; }
         .corner.tl, .corner.tr { top: 10px; }
         .corner.bl, .corner.br { bottom: 10px; }
+        .meme-panel { right: 16px; width: min(420px, 80vw); }
+        .token-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+        .cta-row { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+        .quick-links { left: 24px; top: 22px; gap: 0.45rem; }
       }
 
       /* Mobile */
@@ -843,6 +1036,11 @@
         .corner.tr, .corner.br { right: 8px; }
         .corner.tl, .corner.tr { top: 8px; }
         .corner.bl, .corner.br { bottom: 8px; }
+        .meme-panel { position: fixed; top: auto; bottom: 120px; left: 10px; right: 10px; width: auto; }
+        .token-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+        .cta-row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+        .quick-links { left: 18px; top: 18px; transform: none; flex-direction: row; }
+        .quick-link { min-width: auto; padding: 0.45rem 0.65rem; letter-spacing: 0.12em; }
       }
 
       /* Small mobile */
@@ -865,6 +1063,8 @@
           left: 8px;
           right: 8px;
         }
+        .meme-panel { bottom: 100px; }
+        .quick-links { top: 16px; }
       }
     </style>
   </head>
@@ -905,6 +1105,11 @@
       <div class="vignette"></div>
       <div class="hud-frame"></div>
 
+      <!-- Quick links -->
+      <div class="quick-links" id="quick-links">
+        <a class="quick-link secondary" id="quick-x" href="https://x.com/cyberwhalesol" target="_blank" rel="noopener">X</a>
+      </div>
+
       <!-- Corners -->
       <div class="corner tl"></div>
       <div class="corner tr"></div>
@@ -913,7 +1118,7 @@
 
       <!-- Top Bar -->
       <div class="top-bar">
-        <div class="logo" id="hud-logo">CYBER OCEAN</div>
+        <div class="logo" id="hud-logo">CYBERWHALE</div>
       </div>
 
       <!-- Left Panel - Stats -->
@@ -984,11 +1189,39 @@
         <span>FPS <span class="coord" id="fps-display">60</span></span>
       </div>
 
+      <!-- Meme Token Panel -->
+      <div class="meme-panel" id="meme-panel">
+        <div class="meme-title">
+          $Whale
+          <span class="pill live-badge">LIVE FEED</span>
+        </div>
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="token-label">PRICE</div>
+            <div class="token-value" id="token-price">$0.0000</div>
+          </div>
+          <div class="token-card">
+            <div class="token-label">MARKET CAP</div>
+            <div class="token-value" id="token-mcap">$0</div>
+          </div>
+          <div class="token-card">
+            <div class="token-label">24H VOLUME</div>
+            <div class="token-value" id="token-vol">$0</div>
+          </div>
+          <div class="token-card">
+            <div class="token-label">HOLDERS</div>
+            <div class="token-value" id="token-holders">0</div>
+          </div>
+        </div>
+        <div class="cta-row">
+          <a class="cta-btn" id="btn-buy" href="#" target="_blank" rel="noopener">Buy on DEX</a>
+          <a class="cta-btn secondary" id="btn-chart" href="#" target="_blank" rel="noopener">View Chart</a>
+        </div>
+      </div>
+
       <!-- Attribution -->
       <div class="attribution">
-        <a href="https://skfb.ly/oTOws" target="_blank" rel="noopener">Dolphin</a> by <a href="https://sketchfab.com/Alex_Pfe" target="_blank" rel="noopener">Alex_Pfe</a> · <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
-        <br>
-        Sound by <a href="https://pixabay.com/users/dragon-studio-38165424/" target="_blank" rel="noopener">DRAGON-STUDIO</a> from <a href="https://pixabay.com/" target="_blank" rel="noopener">Pixabay</a>
+        Designed by <a id="attribution-brand" href="https://x.com/cyberwhalesol" target="_blank" rel="noopener">CyberWhale</a> · <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
       </div>
     </div>
 
