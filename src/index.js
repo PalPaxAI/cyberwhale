@@ -39,6 +39,22 @@ bgm.loop = true;
 bgm.volume = 0.5;
 let isAudioPlaying = false;
 
+// Optional: allow setting Solscan API key via localStorage without committing secrets.
+// Usage in DevTools console:
+// localStorage.setItem('SOLSCAN_API_KEY', 'YOUR_KEY'); location.reload();
+try {
+  if (
+    typeof window !== 'undefined' &&
+    !window.SOLSCAN_API_KEY &&
+    typeof localStorage !== 'undefined'
+  ) {
+    const k = localStorage.getItem('SOLSCAN_API_KEY');
+    if (k) window.SOLSCAN_API_KEY = k;
+  }
+} catch (_) {
+  // ignore storage access errors (privacy mode, etc.)
+}
+
 function setAudioState(playing) {
   isAudioPlaying = playing;
   if (playing) {
