@@ -213,6 +213,6 @@ function updateTokenHUD(timeMs) {
 }
 
 // Placeholder links; plug real URLs
-if (btnBuy) btnBuy.href = '#';
+if (btnBuy) btnBuy.href = 'https://dexscreener.com/solana/j5zxou1heksazdsken9tziyhalzjqdcdhmmsh8nb5epo';
 if (btnChart) btnChart.href = '#';
 if (quickX) quickX.href = 'https://x.com/cyberwhalesol';
