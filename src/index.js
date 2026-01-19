@@ -203,14 +203,103 @@ function updateHUD() {
   updateTokenHUD(t);
 }
 
-function updateTokenHUD(timeMs) {
-  // Placeholder zero values until token goes live.
-  // Replace this logic with real on-chain / DEX data later.
-  if (tokenPriceEl) tokenPriceEl.textContent = '$0.000000';
-  if (tokenMcapEl) tokenMcapEl.textContent = '$0';
-  if (tokenVolEl) tokenVolEl.textContent = '$0';
-  if (tokenHoldersEl) tokenHoldersEl.textContent = '0';
+// Dexscreener API configuration
+const DEXSCREENER_PAIR_ADDRESS = 'j5zxou1heksazdsken9tziyhalzjqdcdhmmsh8nb5epo';
+const DEXSCREENER_API_URL = `https://api.dexscreener.com/latest/dex/pairs/solana/${DEXSCREENER_PAIR_ADDRESS}`;
+
+// Token address (from CA)
+const TOKEN_ADDRESS = '2hJ9PBjPZv3qZp4W4Akj7cvf3RnRDmEZu6cfBuk6pump';
+
+let tokenData = {
+  price: 0,
+  marketCap: 0,
+  volume24h: 0,
+  holders: 0
+};
+
+// Fetch token data from Dexscreener API
+async function fetchTokenData() {
+  try {
+    const response = await fetch(DEXSCREENER_API_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    
+    if (data.pairs && data.pairs.length > 0) {
+      const pair = data.pairs[0];
+      
+      tokenData.price = parseFloat(pair.priceUsd) || 0;
+      tokenData.marketCap = parseFloat(pair.fdv) || 0; // Fully Diluted Valuation as market cap
+      tokenData.volume24h = parseFloat(pair.volume?.h24) || 0;
+      
+      // Note: Dexscreener API doesn't provide holders count directly
+      // Fetch holders from Solscan if API key is available
+      if (window.SOLSCAN_API_KEY) {
+        await fetchHoldersFromSolscan();
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to fetch token data from Dexscreener:', error);
+    // Keep existing values on error
+  }
 }
+
+// Fetch holders count from Solscan API
+async function fetchHoldersFromSolscan() {
+  try {
+    const apiKey = window.SOLSCAN_API_KEY;
+    if (!apiKey) return;
+    
+    // Solscan API endpoint for token holders count
+    const response = await fetch(
+      `https://public-api.solscan.io/token/holders?tokenAddress=${TOKEN_ADDRESS}&offset=0&size=1`,
+      {
+        headers: {
+          'token': apiKey
+        }
+      }
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data.total === 'number') {
+        tokenData.holders = data.total;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to fetch holders from Solscan:', error);
+  }
+}
+
+// Format number with appropriate decimals and K/M/B suffixes
+function formatNumber(num, decimals = 2) {
+  if (num === 0) return '0';
+  if (num < 0.000001) return num.toExponential(2);
+  if (num < 1) return num.toFixed(6);
+  if (num < 1000) return num.toFixed(decimals);
+  if (num < 1000000) return (num / 1000).toFixed(2) + 'K';
+  if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
+  return (num / 1000000000).toFixed(2) + 'B';
+}
+
+function formatPrice(price) {
+  if (price === 0) return '$0.000000';
+  if (price < 0.000001) return '$' + price.toExponential(2);
+  if (price < 1) return '$' + price.toFixed(6);
+  return '$' + formatNumber(price, 2);
+}
+
+function updateTokenHUD(timeMs) {
+  // Update UI with fetched token data
+  if (tokenPriceEl) tokenPriceEl.textContent = formatPrice(tokenData.price);
+  if (tokenMcapEl) tokenMcapEl.textContent = '$' + formatNumber(tokenData.marketCap);
+  if (tokenVolEl) tokenVolEl.textContent = '$' + formatNumber(tokenData.volume24h);
+  if (tokenHoldersEl) tokenHoldersEl.textContent = tokenData.holders > 0 ? formatNumber(tokenData.holders, 0) : '0';
+}
+
+// Fetch token data on load and then every 30 seconds
+fetchTokenData();
+setInterval(fetchTokenData, 30000); // Update every 30 seconds
 
 // Placeholder links; plug real URLs
 if (btnBuy) btnBuy.href = 'https://dexscreener.com/solana/j5zxou1heksazdsken9tziyhalzjqdcdhmmsh8nb5epo';
