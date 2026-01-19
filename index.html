@@ -852,6 +852,33 @@
         color: rgba(255, 255, 255, 0.8);
       }
 
+      .quick-link.airdrop-link {
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.5rem 0.9rem;
+        cursor: default;
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      .coming-soon-label {
+        font-size: 0.35rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: rgba(0, 212, 255, 0.6);
+        text-transform: uppercase;
+        line-height: 1;
+      }
+
+      .airdrop-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        color: #fff;
+        text-transform: uppercase;
+        line-height: 1;
+      }
+
       /* Animations */
       @keyframes spin {
         to {
@@ -1041,6 +1068,9 @@
         .cta-row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
         .quick-links { left: 18px; top: 18px; transform: none; flex-direction: row; }
         .quick-link { min-width: auto; padding: 0.45rem 0.65rem; letter-spacing: 0.12em; }
+        .quick-link.airdrop-link { padding: 0.4rem 0.65rem; gap: 0.1rem; }
+        .coming-soon-label { font-size: 0.3rem; }
+        .airdrop-label { font-size: 0.5rem; }
       }
 
       /* Small mobile */
@@ -1107,6 +1137,10 @@
 
       <!-- Quick links -->
       <div class="quick-links" id="quick-links">
+        <div class="quick-link airdrop-link">
+          <span class="coming-soon-label">COMING SOON</span>
+          <span class="airdrop-label">AIRDROP</span>
+        </div>
         <a class="quick-link secondary" id="quick-x" href="https://x.com/cyberwhalesol" target="_blank" rel="noopener">X</a>
       </div>
 
